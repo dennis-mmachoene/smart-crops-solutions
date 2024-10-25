@@ -1,0 +1,4 @@
+flask               # For running the model server
+pandas              # For data manipulation
+scikit-learn        # For model building and data preprocessing
+joblib              # For saving the model and encoders

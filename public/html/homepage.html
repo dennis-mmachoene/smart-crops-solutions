@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Crop Price Predictor</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .dashboard-section {
+            padding: 2rem 1rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card .card-title {
+            color: #28a745;
+            font-size: 1.2rem;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">Crop Price Predictor</div>
+        <div class="icons">
+            <i class="fas fa-bell" title="Notifications"></i>
+            <i class="fas fa-user-circle" title="User Profile"></i>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-section">
+        <!-- Crop Input Form -->
+        <section>
+            <h2 class="section-title">Enter Crop Details</h2>
+            <form id="cropForm" class="mb-4">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="costCultivation">Cost of Cultivation (₹):</label>
+                        <input type="number" class="form-control" id="costCultivation" placeholder="e.g., 15000" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="production">Production (kg):</label>
+                        <input type="number" class="form-control" id="production" placeholder="e.g., 800" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="yield">Yield (kg/ha):</label>
+                        <input type="number" class="form-control" id="yield" placeholder="e.g., 35" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="temperature">Average Temperature (°C):</label>
+                        <input type="number" class="form-control" id="temperature" placeholder="e.g., 28.5" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="rainFallAnnual">Annual Rainfall (mm):</label>
+                        <input type="number" class="form-control" id="rainFallAnnual" placeholder="e.g., 3000" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="region">Region (State):</label>
+                        <input type="text" class="form-control" id="region" placeholder="e.g., Maharashtra" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="crop">Crop:</label>
+                        <input type="text" class="form-control" id="crop" placeholder="e.g., Wheat" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="regionalDemand">Regional Demand:</label>
+                        <select class="form-control" id="regionalDemand" required>
+                            <option value="">Select Demand Level</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Predict Price</button>
+            </form>
+            <div id="result" class="mt-4"></div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-3">
+        <p>© 2024 Crop Price Predictor | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+    </footer>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('cropForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const cropData = {
+                CostCultivation: parseFloat(document.getElementById('costCultivation').value),
+                Production: parseFloat(document.getElementById('production').value),
+                Yield: parseFloat(document.getElementById('yield').value),
+                Temperature: parseFloat(document.getElementById('temperature').value),
+                RainFallAnnual: parseFloat(document.getElementById('rainFallAnnual').value),
+                Region: document.getElementById('region').value,
+                Crop: document.getElementById('crop').value,
+                RegionalDemand: document.getElementById('regionalDemand').value,
+            };
+
+            try {
+                const response = await fetch('/predict/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(cropData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                document.getElementById('result').innerHTML = `
+                    <p>Predicted Price: ₹${data.predictedPrice.toFixed(2)}</p>
+                    <p>Price Trend: ${data.priceTrend}</p>
+                    <p>Recommendation: ${data.recommendation}</p>
+                    <p>Confidence Score: ${(data.confidenceScore * 100).toFixed(2)}%</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'Error in prediction. Please check your inputs.';
+            }
+        });
+    </script>
+</body>
+</html>
