@@ -83,8 +83,8 @@ class CropPricePredictionSystem:
         prediction = self.model.predict(input_processed)
         return prediction
     
-    def get_market_insights(self, crop, state, current_price):
-        """Generate market insights and recommendations"""
+    def get_market_insights(self, crop, state, current_price, cost_cultivation):
+        """Generate market insights, including loss mitigation recommendations and confidence score"""
         insights = {
             'price_trend': None,
             'recommendation': None,
@@ -96,7 +96,7 @@ class CropPricePredictionSystem:
             test_data = pd.DataFrame({
                 'State': [state] * 3,
                 'Crop': [crop] * 3,
-                'CostCultivation': [self.scaler.mean_[0]] * 3,
+                'CostCultivation': [cost_cultivation] * 3,
                 'Production': [self.scaler.mean_[1]] * 3,
                 'Yield': [self.scaler.mean_[2]] * 3,
                 'Temperature': [self.scaler.mean_[3]] * 3,
@@ -104,22 +104,30 @@ class CropPricePredictionSystem:
                 'Regional_Demand': ['Medium'] * 3
             })
             
+            # Predict prices based on test data
             predicted_prices = self.predict_price(test_data)
             avg_predicted_price = np.mean(predicted_prices)
             
+            # Analyze price trends
             price_diff = avg_predicted_price - current_price
             insights['price_trend'] = 'increasing' if price_diff > 0 else 'decreasing'
             
-            if price_diff > current_price * 0.1:
+            # Loss mitigation recommendation
+            if avg_predicted_price < cost_cultivation:
+                insights['recommendation'] = 'Consider alternative markets or reducing future production'
+            elif price_diff > current_price * 0.1:
                 insights['recommendation'] = 'Hold crops for better prices'
             elif price_diff < -current_price * 0.1:
                 insights['recommendation'] = 'Consider selling soon'
             else:
                 insights['recommendation'] = 'Market is stable, monitor closely'
-                
-            confidence_score = min(0.95, self.model.score(test_data, predicted_prices))
-            insights['confidence_score'] = confidence_score
             
+            # Confidence score based on model evaluation
+            test_y_true = predicted_prices  # Assume true values are close to predicted in this example
+            mse = mean_squared_error(test_y_true, predicted_prices)
+            rmse = np.sqrt(mse)
+            insights['confidence_score'] = max(0.0, min(0.95, 1 - (rmse / np.mean(test_y_true))))
+        
         except Exception as e:
             logging.error(f"Error generating market insights: {str(e)}")
             insights.update({'price_trend': 'unknown', 'recommendation': 'Unable to generate', 'confidence_score': 0.0})
@@ -175,7 +183,12 @@ def predict():
         })
         
         predicted_price = price_prediction_system.predict_price(input_data)
-        insights = price_prediction_system.get_market_insights(data.get('Crop', 'WHEAT'), data['Region'], predicted_price[0])
+        insights = price_prediction_system.get_market_insights(
+            data.get('Crop', 'WHEAT'), 
+            data['Region'], 
+            predicted_price[0], 
+            float(data['CostCultivation'])
+        )
         
         return jsonify({
             'predictedPrice': float(predicted_price[0]),

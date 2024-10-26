@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results | Crop Price Predictor</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .header {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .chart-container {
+            padding: 2rem 1rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+        .card {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .result-section {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">Crop Price Predictor</div>
+        <div class="icons">
+            <i class="fas fa-bell" title="Notifications"></i>
+            <i class="fas fa-user-circle" title="User Profile"></i>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="chart-container">
+        <h2 class="section-title">Prediction Results</h2>
+
+        <div class="row">
+            <!-- Prediction Summary Card -->
+            <div class="col-md-4">
+                <div class="card">
+                    <h5 class="card-title">Prediction Summary</h5>
+                    <p id="predictedPrice">Predicted Price: -</p>
+                    <p id="priceTrend">Price Trend: -</p>
+                    <p id="recommendation">Recommendation: -</p>
+                    <p id="confidenceScore">Confidence Score: -%</p>
+                </div>
+            </div>
+
+            <!-- Predicted Price Trend Chart -->
+            <div class="col-md-8">
+                <canvas id="priceTrendChart"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-3">
+        <p>© 2024 Crop Price Predictor | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+    </footer>
+
+    <!-- Script to fetch prediction data and render chart -->
+    <script>
+        // Extract parameters from the URL
+const urlParams = new URLSearchParams(window.location.search);
+const predictionData = {
+    predictedPrice: parseFloat(urlParams.get('predictedPrice')),
+    priceTrend: urlParams.get('priceTrend'),
+    recommendation: urlParams.get('recommendation'),
+    confidenceScore: parseFloat(urlParams.get('confidenceScore') * 100),
+    trendData: [17000, 17500, 18000, 18500, 19000, 19300]  // Replace with real trend data if available
+};
+
+// Populate Prediction Summary
+document.getElementById('predictedPrice').textContent = `Predicted Price: ₹${predictionData.predictedPrice.toFixed(2)}`;
+document.getElementById('priceTrend').textContent = `Price Trend: ${predictionData.priceTrend}`;
+document.getElementById('recommendation').textContent = `Recommendation: ${predictionData.recommendation}`;
+document.getElementById('confidenceScore').textContent = `Confidence Score: ${predictionData.confidenceScore.toFixed(2)}%`;
+
+// Initialize the Chart
+const ctx = document.getElementById('priceTrendChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],  // Sample labels
+        datasets: [{
+            label: 'Price Trend',
+            data: predictionData.trendData,
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.2)',
+            fill: true,
+        }]
+    },
+    options: {
+        scales: {
+            x: { title: { display: true, text: 'Months' } },
+            y: { title: { display: true, text: 'Price (₹)' } }
+        }
+    }
+});
+
+    </script>
+</body>
+</html>

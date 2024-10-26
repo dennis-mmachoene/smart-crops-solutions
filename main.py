@@ -185,7 +185,7 @@ def main():
         })
         
         predicted_price = price_prediction_system.predict_price(sample_input)
-        print(f"\nPredicted Price: ₹{predicted_price[0]:.2f}")
+        print(f"\nPredicted Price: R{predicted_price[0]:.2f}")
         
         # Get market insights
         insights = price_prediction_system.get_market_insights('WHEAT', 'Maharashtra', predicted_price[0])

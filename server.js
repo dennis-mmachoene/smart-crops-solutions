@@ -5,6 +5,7 @@ const path = require('path');
 const connectDB = require('./config/db'); // Import the database connection
 const authRoutes = require('./routes/authRoutes'); // Import authentication routes
 const predictRoutes = require('./routes/predictRoutes');
+const saveRoutes = require('./routes/saveRoutes');
 
 
 const app = express();
@@ -30,9 +31,21 @@ app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'login.html'));
 });
 
+// Route to serve signup page
+app.get('/signup.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'signup.html'));
+});
+
+app.get('/prediction-results', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'results.html'));
+})
+
+
+
 // Use authentication routes
 app.use('/auth', authRoutes);
 app.use('/predict', predictRoutes);
+app.use('/save-prediction', saveRoutes);
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
