@@ -70,6 +70,8 @@
                     <p id="priceTrend">Price Trend: -</p>
                     <p id="recommendation">Recommendation: -</p>
                     <p id="confidenceScore">Confidence Score: -%</p>
+
+                    <button class="btn btn-success mt-3" onclick="savePrediction()">Save Prediction</button>
                 </div>
             </div>
 
@@ -124,6 +126,35 @@ new Chart(ctx, {
         }
     }
 });
+
+// Function to save prediction data to the server
+function savePrediction() {
+    const predictionData = {
+        predictedPrice: parseFloat(urlParams.get('predictedPrice')),
+        priceTrend: urlParams.get('priceTrend'),
+        recommendation: urlParams.get('recommendation'),
+        confidenceScore: parseFloat(urlParams.get('confidenceScore') * 100)
+    };
+
+    fetch('/save-prediction', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(predictionData),
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Prediction saved successfully!');
+        } else {
+            alert('Failed to save prediction.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving prediction.');
+    });
+}
 
     </script>
 </body>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Predictions | Crop Price Predictor</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .prediction-card {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>Saved Predictions</h1>
+    </div>
+
+    <!-- Predictions List -->
+    <div class="container my-4">
+        <div id="predictionsList"></div>
+        <button class="btn btn-primary" onclick="window.location.href='homepage.html'">Done</button>
+    </div>
+
+    <!-- Script to Fetch Predictions and Render Them -->
+    <script>
+        // Fetch predictions from the backend
+        fetch('/get-predictions')
+            .then(response => response.json())
+            .then(data => {
+                const predictionsList = document.getElementById('predictionsList');
+                data.forEach(prediction => {
+                    const predictionCard = document.createElement('div');
+                    predictionCard.className = 'prediction-card bg-light';
+
+                    predictionCard.innerHTML = `
+                        <h5>Predicted Price: ₹${prediction.predictedPrice.toFixed(2)}</h5>
+                        <p>Price Trend: ${prediction.priceTrend}</p>
+                        <p>Recommendation: ${prediction.recommendation}</p>
+                        <p>Confidence Score: ${prediction.confidenceScore.toFixed(2)}%</p>
+                        <p><small>Saved on: ${new Date(prediction.createdAt).toLocaleString()}</small></p>
+                    `;
+                    predictionsList.appendChild(predictionCard);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching predictions:', error);
+                const predictionsList = document.getElementById('predictionsList');
+                predictionsList.innerHTML = `<p class="text-danger">Failed to load predictions.</p>`;
+            });
+    </script>
+</body>
+</html>

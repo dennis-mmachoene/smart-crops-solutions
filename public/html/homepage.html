@@ -8,6 +8,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="file2edit.css" rel="stylesheet">
     <!-- Custom CSS -->
     <style>
         body {
@@ -67,7 +68,7 @@
         <!-- Crop Input Form -->
         <section>
             <h2 class="section-title">Enter Crop Details</h2>
-            <form id="cropForm" class="mb-4">
+            <form id="cropForm" class="overlay">
                 <div class="form-row">
                     <div class="form-group col-md-4">
                         <label for="costCultivation">Cost of Cultivation (R):</label>
@@ -112,11 +113,17 @@
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Predict Price</button>
+                
+                
+                <button onclick="window.location.href='saved.html'" class="btn btn-primary">View Results</button>
+                
+                
+                <button type="button" onclick="window.location.href='/'" class="btn btn-primary">Log Out</button>                       
             </form>
             <div id="result" class="mt-4"></div>
         </section>
     </main>
-
+    
     <!-- Footer -->
     <footer class="text-center py-3">
         <p>© 2024 Crop Price Predictor | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
@@ -127,44 +134,41 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-document.getElementById('cropForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
+        document.getElementById('cropForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
 
-    const cropData = {
-        CostCultivation: parseFloat(document.getElementById('costCultivation').value),
-        Production: parseFloat(document.getElementById('production').value),
-        Yield: parseFloat(document.getElementById('yield').value),
-        Temperature: parseFloat(document.getElementById('temperature').value),
-        RainFallAnnual: parseFloat(document.getElementById('rainFallAnnual').value),
-        Region: document.getElementById('region').value,
-        Crop: document.getElementById('crop').value,
-        RegionalDemand: document.getElementById('regionalDemand').value,
-    };
+            const cropData = {
+                CostCultivation: parseFloat(document.getElementById('costCultivation').value),
+                Production: parseFloat(document.getElementById('production').value),
+                Yield: parseFloat(document.getElementById('yield').value),
+                Temperature: parseFloat(document.getElementById('temperature').value),
+                RainFallAnnual: parseFloat(document.getElementById('rainFallAnnual').value),
+                Region: document.getElementById('region').value,
+                Crop: document.getElementById('crop').value,
+                RegionalDemand: document.getElementById('regionalDemand').value,
+            };
 
-    try {
-        const response = await fetch('/predict/predict', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(cropData)
+            try {
+                const response = await fetch('/predict/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(cropData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const predictionResult = await response.json();
+                const params = new URLSearchParams(predictionResult).toString();
+              
+                window.location.href = `/prediction-results?${params}`;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'Error in prediction. Please check your inputs.';
+            }
         });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const predictionResult = await response.json();
-        // Redirect to Prediction Results Page with data as URL params
-        const params = new URLSearchParams(predictionResult).toString();
-        window.location.href = `/prediction-results?${params}`;
-       
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('result').innerHTML = 'Error in prediction. Please check your inputs.';
-    }
-});
-
     </script>
 </body>
 </html>

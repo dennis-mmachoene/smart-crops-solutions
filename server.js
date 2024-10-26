@@ -39,13 +39,16 @@ app.get('/signup.html', (req, res) => {
 app.get('/prediction-results', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'html', 'results.html'));
 })
-
+app.get('/saved.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'saved.html'));
+});
 
 
 // Use authentication routes
 app.use('/auth', authRoutes);
 app.use('/predict', predictRoutes);
-app.use('/save-prediction', saveRoutes);
+app.use(saveRoutes);
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
